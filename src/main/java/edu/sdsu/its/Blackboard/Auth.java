@@ -19,7 +19,8 @@ public class Auth {
     private static String token = null;
 
     private static void BbAuthenticate() throws UnirestException {
-        HttpResponse<String> httpResponse = Unirest.post(Vault.getParam("URL") + "/learn/api/public/v1/oauth2/token")
+        HttpResponse<String> httpResponse = Unirest.post(
+                Vault.getParam(Vault.getParam("API Secret"), "URL") + "/learn/api/public/v1/oauth2/token")
                 .queryString("grant_type", "client_credentials")
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .basicAuth(Vault.getParam("application-key"),
@@ -44,5 +45,10 @@ public class Auth {
             LOGGER.error("Problem Authenticating with Learn Server", e);
         }
         return token;
+    }
+
+    public static String resetToken() {
+        token = null;
+        return getToken();
     }
 }
