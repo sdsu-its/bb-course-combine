@@ -19,12 +19,13 @@ public class Auth {
     private static String token = null;
 
     private static void BbAuthenticate() throws UnirestException {
+        String apiSecretAppName = Vault.getParam("API Secret");
         HttpResponse<String> httpResponse = Unirest.post(
-                Vault.getParam(Vault.getParam("API Secret"), "URL") + "/learn/api/public/v1/oauth2/token")
+                Vault.getParam(apiSecretAppName, "URL") + "/learn/api/public/v1/oauth2/token")
                 .queryString("grant_type", "client_credentials")
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .basicAuth(Vault.getParam("application-key"),
-                        Vault.getParam("secret"))
+                .basicAuth(Vault.getParam(apiSecretAppName, "application-key"),
+                        Vault.getParam(apiSecretAppName, "secret"))
                 .asString();
 
         if (httpResponse.getStatus() == 401) {

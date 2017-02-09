@@ -7,7 +7,7 @@ package edu.sdsu.its.Blackboard.Models;
  *         Created on 1/27/17.
  */
 public class Course {
-    public String courseId;
+    public String id;
     public String name;
     public boolean allowGuests = false;
 }
