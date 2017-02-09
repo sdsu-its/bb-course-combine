@@ -17,7 +17,9 @@
 
         <load-on-startup>1</load-on-startup>
     </servlet>
-
+    <listener>
+        <listener-class>edu.sdsu.its.Init</listener-class>
+    </listener>
     <servlet-mapping>
         <servlet-name>edu.sdsu.its</servlet-name>
         <url-pattern>/api/*</url-pattern>
