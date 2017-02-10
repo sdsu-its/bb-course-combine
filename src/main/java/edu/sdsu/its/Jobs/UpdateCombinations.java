@@ -10,8 +10,8 @@ import org.quartz.JobExecutionException;
  * @author Tom Paulus
  *         Created on 2/3/17.
  */
-public class UpdateEnrollments implements Job{
-    public UpdateEnrollments() {
+public class UpdateCombinations implements Job{
+    public UpdateCombinations() {
     }
 
     @Override

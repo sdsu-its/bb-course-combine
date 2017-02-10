@@ -26,7 +26,7 @@ public class SyncCourseList implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        Course[] courses = Courses.getAllCourses(edu.sdsu.its.DB.getSemester());
+        Course[] courses = Courses.getAllCourses(edu.sdsu.its.DB.getActiveSemester().name);
         LOGGER.debug(String.format("%d courses were retrieved from Bb", courses.length));
 
         final DB db = edu.sdsu.its.API.Courses.getDb();

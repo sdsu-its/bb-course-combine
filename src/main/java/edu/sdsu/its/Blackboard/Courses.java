@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import edu.sdsu.its.Blackboard.Models.Column;
 import edu.sdsu.its.Blackboard.Models.Course;
 import edu.sdsu.its.Blackboard.Models.Enrollment;
+import edu.sdsu.its.Blackboard.Models.Group;
 import edu.sdsu.its.Vault;
 import org.apache.log4j.Logger;
 
@@ -68,17 +70,45 @@ public class Courses {
     }
 
     public static Course getCourse(String courseID) {
-        // TODO
-        return null;
+        LOGGER.debug(String.format("Retrieving Course with ID \"%s\"", courseID));
+        Course course = null;
+
+        try {
+            final HttpResponse httpResponse = Unirest.get(Vault.getParam(Vault.getParam("API Secret"), "URL") + "/learn/api/public/v1/courses")
+                    .header("Authorization", "Bearer " + Auth.getToken())
+                    .queryString("id", courseID)
+                    .asString();
+
+            LOGGER.debug("Request for Courses returned " + httpResponse.getStatus());
+            Gson gson = new Gson();
+            ListResult result = gson.fromJson(httpResponse.getBody().toString(), ListResult.class);
+            LOGGER.debug(String.format("Retrieved %d courses from Bb Learn API", result.results.length));
+            LOGGER.warn(String.format("More than one course matched the requested Course ID - %d found", result.results.length));
+            course = result.results[0];
+
+        } catch (UnirestException e) {
+            LOGGER.error(String.format("Problem Retrieving Course with ID \"%s\"", courseID), e);
+        }
+
+        return course;
     }
 
     public static void createCourse(Course course) {
-        // TODO
+        // TODO POST /learn/api/public/v1/courses
     }
 
     public static Enrollment[] getEnrollments(Course course) {
-        // TODO
+        // TODO GET /learn/api/public/v1/courses/{courseId}/users
         return null;
+    }
+
+    public static Column createColumn(Course course, Column column) {
+        // TODO POST /learn/api/public/v1/courses/{courseId}/gradebook/columns
+        return null;
+    }
+
+    public static void deleteColumn(Course course, Column column) {
+        // TODO DELETE /learn/api/public/v1/courses/{courseId}/gradebook/columns/{columnId}
     }
 
     static class ListResult {
