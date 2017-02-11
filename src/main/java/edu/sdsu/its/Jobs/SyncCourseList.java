@@ -35,7 +35,7 @@ public class SyncCourseList implements Job {
         map.clear();
         for (Course c : courses) {
             //noinspection unchecked
-            map.put(c.id, c);
+            map.put(c.courseId, c);
         }
         db.commit();
     }

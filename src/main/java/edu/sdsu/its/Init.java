@@ -32,6 +32,9 @@ public class Init implements ServletContextListener {
      */
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        // TODO Check for DSK, and Create if necessary
+        // TODO Add Vault Secret for DSK Name
+
         // TODO Create First Admin User in DB for WebUI
 
         try {

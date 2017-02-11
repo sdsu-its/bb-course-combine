@@ -7,10 +7,10 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import edu.sdsu.its.Blackboard.Models.Column;
 import edu.sdsu.its.Blackboard.Models.Course;
 import edu.sdsu.its.Blackboard.Models.Enrollment;
-import edu.sdsu.its.Blackboard.Models.Group;
 import edu.sdsu.its.Vault;
 import org.apache.log4j.Logger;
 
+import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,11 +23,16 @@ import java.util.List;
  */
 public class Courses {
     private static final Logger LOGGER = Logger.getLogger(Courses.class);
+    private static String mDSKId = "";
+
+    public static void setmDSKId(String mDSKId) {
+        Courses.mDSKId = mDSKId;
+    }
 
     /**
      * Get all Courses from a given semester.
      * This assumes that the semester stub which is passed in as an argument is contained within
-     * the courses' course-id.
+     * the courses' course-courseId.
      *
      * @param semester {@link String} Semester Component of Course ID
      * @return {@link Course[]} List of Courses
@@ -49,7 +54,7 @@ public class Courses {
                         .header("Authorization", "Bearer " + Auth.getToken())
                         .queryString("offset", offset)
                         .queryString("limit", limit)
-                        .queryString("id", semester)
+                        .queryString("courseId", semester)
                         .asString();
 
                 LOGGER.debug("Request for Courses returned " + httpResponse.getStatus());
@@ -69,6 +74,13 @@ public class Courses {
         return courseList.toArray(new Course[]{});
     }
 
+    /**
+     * Get a specific course based on the course's ID. The course is found via a contains search,
+     * however if there are multiple results, only the first one will be returned.
+     *
+     * @param courseID {@link String} Course ID
+     * @return {@link Course} Corresponding Course from Bb API
+     */
     public static Course getCourse(String courseID) {
         LOGGER.debug(String.format("Retrieving Course with ID \"%s\"", courseID));
         Course course = null;
@@ -76,7 +88,7 @@ public class Courses {
         try {
             final HttpResponse httpResponse = Unirest.get(Vault.getParam(Vault.getParam("API Secret"), "URL") + "/learn/api/public/v1/courses")
                     .header("Authorization", "Bearer " + Auth.getToken())
-                    .queryString("id", courseID)
+                    .queryString("courseId", courseID)
                     .asString();
 
             LOGGER.debug("Request for Courses returned " + httpResponse.getStatus());
@@ -93,8 +105,57 @@ public class Courses {
         return course;
     }
 
-    public static void createCourse(Course course) {
-        // TODO POST /learn/api/public/v1/courses
+    /**
+     * Create a Blackboard Course.
+     * It must have a unique course ID.
+     *
+     * @param course {@link Course} Course to be Created
+     * @return {@link boolean} If created correctly
+     */
+    public static boolean createCourse(Course course) {
+        course.dataSourceId = mDSKId; // Set DSK to the one set in the Vault
+        HttpResponse httpResponse = null;
+
+        try {
+            Gson gson = new Gson();
+            httpResponse = Unirest.post(Vault.getParam(Vault.getParam("API Secret"), "URL") +
+                    "/learn/api/public/v1/courses")
+                    .header("Authorization", "Bearer " + Auth.getToken())
+                    .header("Content-Type", MediaType.APPLICATION_JSON)
+                    .body(gson.toJson(course))
+                    .asString();
+
+            LOGGER.debug("Request for Courses returned " + httpResponse.getStatus());
+        } catch (UnirestException e) {
+            LOGGER.warn("Problem Creating Course - " + course.courseId, e);
+        }
+
+        return httpResponse != null && (httpResponse.getStatus() / 100 == 2);
+    }
+
+    /**
+     * Delete a Blackboard course.
+     * Only the CourseID in the course needs to be defined.
+     *
+     * @param course {@link Course} Course to be Deleted
+     * @return {@link boolean}  If deleted correctly
+     */
+    public static boolean deleteCourse(Course course) {
+        HttpResponse httpResponse = null;
+        try {
+            httpResponse = Unirest.delete(Vault.getParam(Vault.getParam("API Secret"), "URL") +
+                    "/learn/api/public/v1/courses/" + course.courseId.toLowerCase())
+                    .header("Authorization", "Bearer " + Auth.getToken())
+                    .asString();
+
+            LOGGER.debug("Request for Courses returned " + httpResponse.getStatus());
+        } catch (UnirestException e) {
+            LOGGER.warn("Problem Deleting Course - " + course.courseId, e);
+        }
+
+
+        return httpResponse != null && httpResponse.getStatus() == 204;
+
     }
 
     public static Enrollment[] getEnrollments(Course course) {
