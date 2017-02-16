@@ -29,6 +29,10 @@ public class Courses {
         Courses.mDSKId = mDSKId;
     }
 
+    public static String getmDSKId() {
+        return mDSKId;
+    }
+
     /**
      * Get all Courses from a given semester.
      * This assumes that the semester stub which is passed in as an argument is contained within
@@ -144,7 +148,7 @@ public class Courses {
         HttpResponse httpResponse = null;
         try {
             httpResponse = Unirest.delete(Vault.getParam(Vault.getParam("API Secret"), "URL") +
-                    "/learn/api/public/v1/courses/" + course.courseId.toLowerCase())
+                    "/learn/api/public/v1/courses/courseId:" + course.courseId.toLowerCase())
                     .header("Authorization", "Bearer " + Auth.getToken())
                     .asString();
 

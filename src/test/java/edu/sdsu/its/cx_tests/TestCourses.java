@@ -1,6 +1,7 @@
 package edu.sdsu.its.cx_tests;
 
 import edu.sdsu.its.Blackboard.Courses;
+import edu.sdsu.its.Blackboard.DSK;
 import edu.sdsu.its.Blackboard.Models.Course;
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -23,10 +24,16 @@ public class TestCourses {
     private static final Logger LOGGER = Logger.getLogger(TestCourses.class);
     private static final String TEST_COURSE_ID = "ITS-CX-Test-" + UUID.randomUUID();
     private static final String TEST_COURSE_NAME = "Course Combinations Test Course 1";
+    private static final String TEST_DSK = "ITS-BB-CX-Test-DSK";
+    private static final String TEST_DSK_DESC = "Course Combinations Unit Test DSK";
     private static Course testCourse = null;
 
     @Before
     public void setUp() throws Exception {
+        LOGGER.info("Creating Test DSK - ID:" + TEST_DSK);
+        assertTrue(DSK.createDataSource(TEST_DSK, TEST_DSK_DESC));
+        assertNotNull(Courses.getmDSKId());
+
         LOGGER.info("Creating Test Course - ID: " + TEST_COURSE_ID);
         testCourse = new Course(TEST_COURSE_ID, TEST_COURSE_NAME);
         assertTrue("Problem Creating Course", Courses.createCourse(testCourse));
@@ -36,7 +43,7 @@ public class TestCourses {
     public void getCourse() throws Exception {
         Course course = Courses.getCourse(TEST_COURSE_ID);
         assertNotNull(course);
-        assertEquals(course, testCourse);
+        assertTrue(course.equals(testCourse));
     }
 
     @Test
@@ -56,5 +63,9 @@ public class TestCourses {
     public void tearDown() throws Exception {
         LOGGER.warn("Deleting Test Course - ID:" + TEST_COURSE_ID);
         assertTrue(Courses.deleteCourse(testCourse));
+
+        final String dskId = Courses.getmDSKId();
+        LOGGER.warn("Deleting Test DSK - ID:" + dskId);
+        assertTrue(DSK.deleteDataSource(dskId));
     }
 }

@@ -10,4 +10,9 @@ public class DataSource {
     public String id;
     public String externalId;
     public String description;
+
+    public DataSource(String externalId, String description) {
+        this.externalId = externalId;
+        this.description = description;
+    }
 }

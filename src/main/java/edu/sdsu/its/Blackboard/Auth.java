@@ -8,6 +8,8 @@ import edu.sdsu.its.Blackboard.Models.AuthPayload;
 import edu.sdsu.its.Vault;
 import org.apache.log4j.Logger;
 
+import javax.ws.rs.core.MediaType;
+
 /**
  * Authenticate with the Blackboard.
  *
@@ -23,7 +25,7 @@ public class Auth {
         HttpResponse<String> httpResponse = Unirest.post(
                 Vault.getParam(apiSecretAppName, "URL") + "/learn/api/public/v1/oauth2/token")
                 .queryString("grant_type", "client_credentials")
-                .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
                 .basicAuth(Vault.getParam(apiSecretAppName, "application-key"),
                         Vault.getParam(apiSecretAppName, "secret"))
                 .asString();
